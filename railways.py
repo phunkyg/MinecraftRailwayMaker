@@ -4,6 +4,72 @@ from pyglet.window import key
 
 INCREMENT = 5
 BLOCK = 3
+AIR = 'air'
+
+# GL drawing helpers
+
+
+def draw_cuboid(xmin, ymin, zmin, xmax, ymax, zmax, clr):
+    xmin = xmin * BLOCK
+    xmax = xmax * BLOCK
+    ymin = ymin * BLOCK
+    ymax = ymax * BLOCK
+    zmin = zmin * BLOCK
+    zmax = zmax * BLOCK
+
+    # BACK
+    glBegin(GL_POLYGON)
+    glColor3f(*clr)
+    glVertex3f(xmax, ymin, zmax)
+    glVertex3f(xmax, ymax, zmax)
+    glVertex3f(xmin, ymax, zmax)
+    glVertex3f(xmin, ymin, zmax)
+    glEnd()
+
+    # FRONT
+    glBegin(GL_POLYGON)
+    glColor3f(*clr)
+    glVertex3f(xmax, ymin, zmin)
+    glVertex3f(xmax, ymax, zmin)
+    glVertex3f(xmin, ymax, zmin)
+    glVertex3f(xmin, ymin, zmin)
+    glEnd()
+
+    # RIGHT
+    glBegin(GL_POLYGON)
+    glColor3f(*clr)
+    glVertex3f(xmax, ymin, zmin)
+    glVertex3f(xmax, ymax, zmin)
+    glVertex3f(xmax, ymax, zmax)
+    glVertex3f(xmax, ymin, zmax)
+    glEnd()
+
+    #  LEFT
+    glBegin(GL_POLYGON)
+    glColor3f(*clr)
+    glVertex3f(xmin, ymin, zmax)
+    glVertex3f(xmin, ymax, zmax)
+    glVertex3f(xmin, ymax, zmin)
+    glVertex3f(xmin, ymin, zmin)
+    glEnd()
+
+    # TOP
+    glBegin(GL_POLYGON)
+    glColor3f(*clr)
+    glVertex3f(xmax, ymax, zmax)
+    glVertex3f(xmax, ymax, zmin)
+    glVertex3f(xmin, ymax, zmin)
+    glVertex3f(xmin, ymax, zmax)
+    glEnd()
+
+    # BOTTOM
+    glBegin(GL_POLYGON)
+    glColor3f(*clr)
+    glVertex3f(xmax, ymin, zmin)
+    glVertex3f(xmax, ymin, zmax)
+    glVertex3f(xmin, ymin, zmax)
+    glVertex3f(xmin, ymin, zmin)
+    glEnd()
 
 
 class Railway():
@@ -52,89 +118,97 @@ class Station():
 
         # Set the mc commands for the outer and ceiling
         self.commands = [
-            Cheat(self.xmin, self.ymin, self.zmin, self.xmax, self.ymax,
-                  self.zmax, self.block_base),
-            Cheat(self.xmin, self.ymax - 1, self.zmin, self.xmax,
-                  self.ymax - 1, self.zmax, self.block_ceiling)
+            Cheat(self.block_base, self.xmin, self.ymin, self.zmin, self.xmax,
+                  self.ymax, self.zmax),
+            Cheat(self.block_ceiling, self.xmin, self.ymax - 1, self.zmin,
+                  self.xmax, self.ymax - 1, self.zmax)
         ]
 
         # Spawn children
-        self.children = [
-            Shaft(self.xmax, self.ymax)
-        ]
+        self.children = [Shaft(self.xmax, self.ymin, self.zmax)]
 
     def __str__(self):
         mainstr = ''
         for piece in self.commands:
             mainstr += str(piece) + '\n'
+        for child in self.children:
+            mainstr += str(child)
         return mainstr
 
     def draw(self):
-        xmin = self.xmin * BLOCK
-        xmax = self.xmax * BLOCK
-        ymin = self.ymin * BLOCK
-        ymax = self.ymax * BLOCK
-        zmin = self.zmin * BLOCK
-        zmax = self.zmax * BLOCK
-        clr = self.clr[0]
+        draw_cuboid(self.xmin, self.ymin, self.zmin, self.xmax, self.ymax,
+                    self.zmax, self.clr[0])
+        for child in self.children:
+            child.draw()
 
-        # BACK
-        glBegin(GL_POLYGON)
-        glColor3f(*clr)
-        glVertex3f(xmax, ymin, zmax)
-        glVertex3f(xmax, ymax, zmax)
-        glVertex3f(xmin, ymax, zmax)
-        glVertex3f(xmin, ymin, zmax)
-        glEnd()
 
-        # FRONT
-        glBegin(GL_POLYGON)
-        glColor3f(*clr)
-        glVertex3f(xmax, ymin, zmin)
-        glVertex3f(xmax, ymax, zmin)
-        glVertex3f(xmin, ymax, zmin)
-        glVertex3f(xmin, ymin, zmin)
-        glEnd()
+class Shaft():
+    block_base = 'concrete'
+    block_inside = 'scaffolding'
+    block_landing = 'slime'
+    sea_level = 64
+    inner_x = 1
+    inner_z = 2
+    clrs = [((244, 161, 66), 2)]  #orange
 
-        # RIGHT
-        glBegin(GL_POLYGON)
-        glColor3f(*clr)
-        glVertex3f(xmax, ymin, zmin)
-        glVertex3f(xmax, ymax, zmin)
-        glVertex3f(xmax, ymax, zmax)
-        glVertex3f(xmax, ymin, zmax)
-        glEnd()
+    def __init__(self, corner_x, base_y, corner_z):
 
-        #  LEFT
-        glBegin(GL_POLYGON)
-        glColor3f(*clr)
-        glVertex3f(xmin, ymin, zmax)
-        glVertex3f(xmin, ymax, zmax)
-        glVertex3f(xmin, ymax, zmin)
-        glVertex3f(xmin, ymin, zmin)
-        glEnd()
+        # Shaft builds slightly inside the outer corner of the station
+        # materials and colour stay the same for now, but support change for future
+        self.clr = Shaft.clrs[0]
+        self.block_base = '{} {}'.format(Shaft.block_base, self.clr[1])
+        self.block_inside = Shaft.block_inside
+        self.block_landing = Shaft.block_landing
 
-        # TOP
-        glBegin(GL_POLYGON)
-        glColor3f(*clr)
-        glVertex3f(xmax, ymax, zmax)
-        glVertex3f(xmax, ymax, zmin)
-        glVertex3f(xmin, ymax, zmin)
-        glVertex3f(xmin, ymax, zmax)
-        glEnd()
+        # Calculate outer dimensions of shaft cuboid
+        self.xmin = corner_x - Shaft.inner_x - 1
+        self.zmin = corner_z - Shaft.inner_z - 1
+        self.xmax = corner_x
+        self.zmax = corner_z
 
-        # BOTTOM
-        glBegin(GL_POLYGON)
-        glColor3f(*clr)
-        glVertex3f(xmax, ymin, zmin)
-        glVertex3f(xmax, ymin, zmax)
-        glVertex3f(xmin, ymin, zmax)
-        glVertex3f(xmin, ymin, zmin)
-        glEnd()
+        # Calculate the inside structure fill
+        self.ix = self.xmin + 1
+        self.iz = self.zmin + 1
+        self.iy = base_y + 1
+
+        self.ymin = base_y
+        self.ymax = Shaft.sea_level
+
+        # Set the mc commands for the shaft
+        self.commands = [
+            Cheat(self.block_base, self.xmin, self.ymin, self.zmin, self.xmax,
+                  self.ymax, self.zmax),
+            Cheat(self.block_inside, self.ix, self.iy, self.iz, self.ix,
+                  self.ymax, self.iz)
+        ]
+
+        # Spawn children
+        self.children = []
+
+    def __str__(self):
+        mainstr = ''
+        for piece in self.commands:
+            mainstr += str(piece) + '\n'
+        for child in self.children:
+            mainstr += str(child)
+        return mainstr
+
+    def draw(self):
+        draw_cuboid(self.xmin, self.ymin, self.zmin, self.xmax, self.ymax,
+                    self.zmax, self.clr[0])
 
 
 class Cheat():
-    def __init__(self, xmin, ymin, zmin, xmax, ymax, zmax, block):
+    """class to compose and output minecraft cheat commands"""
+
+    def __init__(self,
+                 block,
+                 xmin,
+                 ymin,
+                 zmin,
+                 xmax=None,
+                 ymax=None,
+                 zmax=None):
         self.xmin = xmin
         self.ymin = ymin
         self.zmin = zmin
@@ -143,10 +217,10 @@ class Cheat():
         self.zmax = zmax
         self.block = block
 
-        if all([
+        if (any([xmax is None, ymax is None, zmax is None])) or (all([
                 self.xmin == self.xmax, self.ymin == self.ymax,
                 self.zmin == self.zmax
-        ]):
+        ])):
             self.command = 'setblock'
         else:
             self.command = 'fill'
