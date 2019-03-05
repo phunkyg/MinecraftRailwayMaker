@@ -149,11 +149,11 @@ class Shaft():
     sea_level = 64
     inner_x = 1
     inner_z = 2
-    clrs = [((244, 161, 66), 2)]  #orange
+    clrs = [((0.96, 0.625, 0.26), 2)]  #orange
 
     def __init__(self, corner_x, base_y, corner_z):
 
-        # Shaft builds slightly inside the outer corner of the station
+        # Shaft builds slightly inside the outer corner of the station, then sticking out
         # materials and colour stay the same for now, but support change for future
         self.clr = Shaft.clrs[0]
         self.block_base = '{} {}'.format(Shaft.block_base, self.clr[1])
@@ -161,10 +161,10 @@ class Shaft():
         self.block_landing = Shaft.block_landing
 
         # Calculate outer dimensions of shaft cuboid
-        self.xmin = corner_x - Shaft.inner_x - 1
-        self.zmin = corner_z - Shaft.inner_z - 1
-        self.xmax = corner_x
-        self.zmax = corner_z
+        self.xmin = corner_x
+        self.zmin = corner_z
+        self.xmax = corner_x + Shaft.inner_x + 1
+        self.zmax = corner_z - Shaft.inner_z - 1
 
         # Calculate the inside structure fill
         self.ix = self.xmin + 1
