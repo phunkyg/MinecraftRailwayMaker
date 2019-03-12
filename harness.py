@@ -88,7 +88,7 @@ for cmd in cmds:
     p.stdin.flush()
     r.wait()
     if cmd[:2] == b"tp":
-        time.sleep(4)
+        time.sleep(5)
 
 inp = ""
 while inp != "stop\n":

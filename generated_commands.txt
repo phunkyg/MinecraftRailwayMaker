@@ -1,0 +1,494 @@
+fill 12 9 0 12 10 0 air 0 
+tp @p 12 125 0 0 90
+fill 0 8 -12 24 13 12 concrete 10 hollow
+fill 0 12 -12 24 12 12 sealantern 0 
+fill 11 8 -1 13 74 2 concrete 3 hollow
+fill 12 9 0 12 74 0 scaffolding 0 
+fill 11 9 0 11 10 1 air 0 
+setblock 12 74 1 air 0 
+setblock 12 8 1 slime 0 
+fill 11 75 -1 11 255 -1 glowstone 0 
+fill 273 9 2 273 10 2 air 0 
+tp @p 273 125 2 0 90
+fill 23 9 -2 23 10 -2 air 0 
+tp @p 23 125 -2 0 90
+fill 24 8 -2 274 13 2 concrete 6 hollow
+fill 24 12 -2 274 12 2 quartz_block 3 
+fill 24 9 -1 24 11 1 air 0 
+fill 274 9 -1 274 11 1 air 0 
+fill 24 9 0 274 9 0 rail 1 
+setblock 24 10 -2 sealantern 0 
+setblock 24 10 2 sealantern 0 
+setblock 24 8 0 redstone_block 0 
+setblock 24 9 0 golden_rail 0 
+setblock 34 10 -2 sealantern 0 
+setblock 34 10 2 sealantern 0 
+setblock 34 8 0 redstone_block 0 
+setblock 34 9 0 golden_rail 0 
+setblock 44 10 -2 sealantern 0 
+setblock 44 10 2 sealantern 0 
+setblock 44 8 0 redstone_block 0 
+setblock 44 9 0 golden_rail 0 
+setblock 54 10 -2 sealantern 0 
+setblock 54 10 2 sealantern 0 
+setblock 54 8 0 redstone_block 0 
+setblock 54 9 0 golden_rail 0 
+setblock 64 10 -2 sealantern 0 
+setblock 64 10 2 sealantern 0 
+setblock 64 8 0 redstone_block 0 
+setblock 64 9 0 golden_rail 0 
+setblock 74 10 -2 sealantern 0 
+setblock 74 10 2 sealantern 0 
+setblock 74 8 0 redstone_block 0 
+setblock 74 9 0 golden_rail 0 
+setblock 84 10 -2 sealantern 0 
+setblock 84 10 2 sealantern 0 
+setblock 84 8 0 redstone_block 0 
+setblock 84 9 0 golden_rail 0 
+setblock 94 10 -2 sealantern 0 
+setblock 94 10 2 sealantern 0 
+setblock 94 8 0 redstone_block 0 
+setblock 94 9 0 golden_rail 0 
+setblock 104 10 -2 sealantern 0 
+setblock 104 10 2 sealantern 0 
+setblock 104 8 0 redstone_block 0 
+setblock 104 9 0 golden_rail 0 
+setblock 114 10 -2 sealantern 0 
+setblock 114 10 2 sealantern 0 
+setblock 114 8 0 redstone_block 0 
+setblock 114 9 0 golden_rail 0 
+setblock 124 10 -2 sealantern 0 
+setblock 124 10 2 sealantern 0 
+setblock 124 8 0 redstone_block 0 
+setblock 124 9 0 golden_rail 0 
+setblock 134 10 -2 sealantern 0 
+setblock 134 10 2 sealantern 0 
+setblock 134 8 0 redstone_block 0 
+setblock 134 9 0 golden_rail 0 
+setblock 144 10 -2 sealantern 0 
+setblock 144 10 2 sealantern 0 
+setblock 144 8 0 redstone_block 0 
+setblock 144 9 0 golden_rail 0 
+setblock 154 10 -2 sealantern 0 
+setblock 154 10 2 sealantern 0 
+setblock 154 8 0 redstone_block 0 
+setblock 154 9 0 golden_rail 0 
+setblock 164 10 -2 sealantern 0 
+setblock 164 10 2 sealantern 0 
+setblock 164 8 0 redstone_block 0 
+setblock 164 9 0 golden_rail 0 
+setblock 174 10 -2 sealantern 0 
+setblock 174 10 2 sealantern 0 
+setblock 174 8 0 redstone_block 0 
+setblock 174 9 0 golden_rail 0 
+setblock 184 10 -2 sealantern 0 
+setblock 184 10 2 sealantern 0 
+setblock 184 8 0 redstone_block 0 
+setblock 184 9 0 golden_rail 0 
+setblock 194 10 -2 sealantern 0 
+setblock 194 10 2 sealantern 0 
+setblock 194 8 0 redstone_block 0 
+setblock 194 9 0 golden_rail 0 
+setblock 204 10 -2 sealantern 0 
+setblock 204 10 2 sealantern 0 
+setblock 204 8 0 redstone_block 0 
+setblock 204 9 0 golden_rail 0 
+setblock 214 10 -2 sealantern 0 
+setblock 214 10 2 sealantern 0 
+setblock 214 8 0 redstone_block 0 
+setblock 214 9 0 golden_rail 0 
+setblock 224 10 -2 sealantern 0 
+setblock 224 10 2 sealantern 0 
+setblock 224 8 0 redstone_block 0 
+setblock 224 9 0 golden_rail 0 
+setblock 234 10 -2 sealantern 0 
+setblock 234 10 2 sealantern 0 
+setblock 234 8 0 redstone_block 0 
+setblock 234 9 0 golden_rail 0 
+setblock 244 10 -2 sealantern 0 
+setblock 244 10 2 sealantern 0 
+setblock 244 8 0 redstone_block 0 
+setblock 244 9 0 golden_rail 0 
+setblock 254 10 -2 sealantern 0 
+setblock 254 10 2 sealantern 0 
+setblock 254 8 0 redstone_block 0 
+setblock 254 9 0 golden_rail 0 
+setblock 264 10 -2 sealantern 0 
+setblock 264 10 2 sealantern 0 
+setblock 264 8 0 redstone_block 0 
+setblock 264 9 0 golden_rail 0 
+fill 285 9 0 285 10 0 air 0 
+tp @p 285 125 0 0 90
+fill 274 8 -11 296 13 11 concrete 11 hollow
+fill 274 12 -11 296 12 11 sealantern 0 
+fill 274 9 -1 274 11 1 air 0 
+fill 284 8 -1 286 74 2 concrete 3 hollow
+fill 285 9 0 285 74 0 scaffolding 0 
+fill 284 9 0 284 10 1 air 0 
+setblock 285 74 1 air 0 
+setblock 285 8 1 slime 0 
+fill 284 75 -1 284 255 -1 glowstone 0 
+fill 1 9 2 1 10 2 air 0 
+tp @p 1 125 2 0 90
+fill -259 9 -2 -259 10 -2 air 0 
+tp @p -259 125 -2 0 90
+fill -260 8 -2 0 13 2 concrete 4 hollow
+fill -260 12 -2 0 12 2 quartz_block 3 
+fill -260 9 -1 -260 11 1 air 0 
+fill 0 9 -1 0 11 1 air 0 
+fill -260 9 0 0 9 0 rail 1 
+setblock -260 10 -2 sealantern 0 
+setblock -260 10 2 sealantern 0 
+setblock -260 8 0 redstone_block 0 
+setblock -260 9 0 golden_rail 0 
+setblock -250 10 -2 sealantern 0 
+setblock -250 10 2 sealantern 0 
+setblock -250 8 0 redstone_block 0 
+setblock -250 9 0 golden_rail 0 
+setblock -240 10 -2 sealantern 0 
+setblock -240 10 2 sealantern 0 
+setblock -240 8 0 redstone_block 0 
+setblock -240 9 0 golden_rail 0 
+setblock -230 10 -2 sealantern 0 
+setblock -230 10 2 sealantern 0 
+setblock -230 8 0 redstone_block 0 
+setblock -230 9 0 golden_rail 0 
+setblock -220 10 -2 sealantern 0 
+setblock -220 10 2 sealantern 0 
+setblock -220 8 0 redstone_block 0 
+setblock -220 9 0 golden_rail 0 
+setblock -210 10 -2 sealantern 0 
+setblock -210 10 2 sealantern 0 
+setblock -210 8 0 redstone_block 0 
+setblock -210 9 0 golden_rail 0 
+setblock -200 10 -2 sealantern 0 
+setblock -200 10 2 sealantern 0 
+setblock -200 8 0 redstone_block 0 
+setblock -200 9 0 golden_rail 0 
+setblock -190 10 -2 sealantern 0 
+setblock -190 10 2 sealantern 0 
+setblock -190 8 0 redstone_block 0 
+setblock -190 9 0 golden_rail 0 
+setblock -180 10 -2 sealantern 0 
+setblock -180 10 2 sealantern 0 
+setblock -180 8 0 redstone_block 0 
+setblock -180 9 0 golden_rail 0 
+setblock -170 10 -2 sealantern 0 
+setblock -170 10 2 sealantern 0 
+setblock -170 8 0 redstone_block 0 
+setblock -170 9 0 golden_rail 0 
+setblock -160 10 -2 sealantern 0 
+setblock -160 10 2 sealantern 0 
+setblock -160 8 0 redstone_block 0 
+setblock -160 9 0 golden_rail 0 
+setblock -150 10 -2 sealantern 0 
+setblock -150 10 2 sealantern 0 
+setblock -150 8 0 redstone_block 0 
+setblock -150 9 0 golden_rail 0 
+setblock -140 10 -2 sealantern 0 
+setblock -140 10 2 sealantern 0 
+setblock -140 8 0 redstone_block 0 
+setblock -140 9 0 golden_rail 0 
+setblock -130 10 -2 sealantern 0 
+setblock -130 10 2 sealantern 0 
+setblock -130 8 0 redstone_block 0 
+setblock -130 9 0 golden_rail 0 
+setblock -120 10 -2 sealantern 0 
+setblock -120 10 2 sealantern 0 
+setblock -120 8 0 redstone_block 0 
+setblock -120 9 0 golden_rail 0 
+setblock -110 10 -2 sealantern 0 
+setblock -110 10 2 sealantern 0 
+setblock -110 8 0 redstone_block 0 
+setblock -110 9 0 golden_rail 0 
+setblock -100 10 -2 sealantern 0 
+setblock -100 10 2 sealantern 0 
+setblock -100 8 0 redstone_block 0 
+setblock -100 9 0 golden_rail 0 
+setblock -90 10 -2 sealantern 0 
+setblock -90 10 2 sealantern 0 
+setblock -90 8 0 redstone_block 0 
+setblock -90 9 0 golden_rail 0 
+setblock -80 10 -2 sealantern 0 
+setblock -80 10 2 sealantern 0 
+setblock -80 8 0 redstone_block 0 
+setblock -80 9 0 golden_rail 0 
+setblock -70 10 -2 sealantern 0 
+setblock -70 10 2 sealantern 0 
+setblock -70 8 0 redstone_block 0 
+setblock -70 9 0 golden_rail 0 
+setblock -60 10 -2 sealantern 0 
+setblock -60 10 2 sealantern 0 
+setblock -60 8 0 redstone_block 0 
+setblock -60 9 0 golden_rail 0 
+setblock -50 10 -2 sealantern 0 
+setblock -50 10 2 sealantern 0 
+setblock -50 8 0 redstone_block 0 
+setblock -50 9 0 golden_rail 0 
+setblock -40 10 -2 sealantern 0 
+setblock -40 10 2 sealantern 0 
+setblock -40 8 0 redstone_block 0 
+setblock -40 9 0 golden_rail 0 
+setblock -30 10 -2 sealantern 0 
+setblock -30 10 2 sealantern 0 
+setblock -30 8 0 redstone_block 0 
+setblock -30 9 0 golden_rail 0 
+setblock -20 10 -2 sealantern 0 
+setblock -20 10 2 sealantern 0 
+setblock -20 8 0 redstone_block 0 
+setblock -20 9 0 golden_rail 0 
+setblock -10 10 -2 sealantern 0 
+setblock -10 10 2 sealantern 0 
+setblock -10 8 0 redstone_block 0 
+setblock -10 9 0 golden_rail 0 
+fill -271 9 0 -271 10 0 air 0 
+tp @p -271 125 0 0 90
+fill -282 8 -11 -260 13 11 concrete 11 hollow
+fill -282 12 -11 -260 12 11 sealantern 0 
+fill -260 9 -1 -260 11 1 air 0 
+fill -272 8 -1 -270 74 2 concrete 3 hollow
+fill -271 9 0 -271 74 0 scaffolding 0 
+fill -272 9 0 -272 10 1 air 0 
+setblock -271 74 1 air 0 
+setblock -271 8 1 slime 0 
+fill -272 75 -1 -272 255 -1 glowstone 0 
+fill 14 9 263 14 10 263 air 0 
+tp @p 14 125 263 0 90
+fill 10 9 11 10 10 11 air 0 
+tp @p 10 125 11 0 90
+fill 10 8 12 14 13 264 concrete 5 hollow
+fill 10 12 12 14 12 264 quartz_block 3 
+fill 11 9 12 13 11 12 air 0 
+fill 11 9 264 13 11 264 air 0 
+fill 12 9 12 12 9 264 rail 0 
+setblock 10 10 12 sealantern 0 
+setblock 14 10 12 sealantern 0 
+setblock 12 8 12 redstone_block 0 
+setblock 12 9 12 golden_rail 0 
+setblock 10 10 22 sealantern 0 
+setblock 14 10 22 sealantern 0 
+setblock 12 8 22 redstone_block 0 
+setblock 12 9 22 golden_rail 0 
+setblock 10 10 32 sealantern 0 
+setblock 14 10 32 sealantern 0 
+setblock 12 8 32 redstone_block 0 
+setblock 12 9 32 golden_rail 0 
+setblock 10 10 42 sealantern 0 
+setblock 14 10 42 sealantern 0 
+setblock 12 8 42 redstone_block 0 
+setblock 12 9 42 golden_rail 0 
+setblock 10 10 52 sealantern 0 
+setblock 14 10 52 sealantern 0 
+setblock 12 8 52 redstone_block 0 
+setblock 12 9 52 golden_rail 0 
+setblock 10 10 62 sealantern 0 
+setblock 14 10 62 sealantern 0 
+setblock 12 8 62 redstone_block 0 
+setblock 12 9 62 golden_rail 0 
+setblock 10 10 72 sealantern 0 
+setblock 14 10 72 sealantern 0 
+setblock 12 8 72 redstone_block 0 
+setblock 12 9 72 golden_rail 0 
+setblock 10 10 82 sealantern 0 
+setblock 14 10 82 sealantern 0 
+setblock 12 8 82 redstone_block 0 
+setblock 12 9 82 golden_rail 0 
+setblock 10 10 92 sealantern 0 
+setblock 14 10 92 sealantern 0 
+setblock 12 8 92 redstone_block 0 
+setblock 12 9 92 golden_rail 0 
+setblock 10 10 102 sealantern 0 
+setblock 14 10 102 sealantern 0 
+setblock 12 8 102 redstone_block 0 
+setblock 12 9 102 golden_rail 0 
+setblock 10 10 112 sealantern 0 
+setblock 14 10 112 sealantern 0 
+setblock 12 8 112 redstone_block 0 
+setblock 12 9 112 golden_rail 0 
+setblock 10 10 122 sealantern 0 
+setblock 14 10 122 sealantern 0 
+setblock 12 8 122 redstone_block 0 
+setblock 12 9 122 golden_rail 0 
+setblock 10 10 132 sealantern 0 
+setblock 14 10 132 sealantern 0 
+setblock 12 8 132 redstone_block 0 
+setblock 12 9 132 golden_rail 0 
+setblock 10 10 142 sealantern 0 
+setblock 14 10 142 sealantern 0 
+setblock 12 8 142 redstone_block 0 
+setblock 12 9 142 golden_rail 0 
+setblock 10 10 152 sealantern 0 
+setblock 14 10 152 sealantern 0 
+setblock 12 8 152 redstone_block 0 
+setblock 12 9 152 golden_rail 0 
+setblock 10 10 162 sealantern 0 
+setblock 14 10 162 sealantern 0 
+setblock 12 8 162 redstone_block 0 
+setblock 12 9 162 golden_rail 0 
+setblock 10 10 172 sealantern 0 
+setblock 14 10 172 sealantern 0 
+setblock 12 8 172 redstone_block 0 
+setblock 12 9 172 golden_rail 0 
+setblock 10 10 182 sealantern 0 
+setblock 14 10 182 sealantern 0 
+setblock 12 8 182 redstone_block 0 
+setblock 12 9 182 golden_rail 0 
+setblock 10 10 192 sealantern 0 
+setblock 14 10 192 sealantern 0 
+setblock 12 8 192 redstone_block 0 
+setblock 12 9 192 golden_rail 0 
+setblock 10 10 202 sealantern 0 
+setblock 14 10 202 sealantern 0 
+setblock 12 8 202 redstone_block 0 
+setblock 12 9 202 golden_rail 0 
+setblock 10 10 212 sealantern 0 
+setblock 14 10 212 sealantern 0 
+setblock 12 8 212 redstone_block 0 
+setblock 12 9 212 golden_rail 0 
+setblock 10 10 222 sealantern 0 
+setblock 14 10 222 sealantern 0 
+setblock 12 8 222 redstone_block 0 
+setblock 12 9 222 golden_rail 0 
+setblock 10 10 232 sealantern 0 
+setblock 14 10 232 sealantern 0 
+setblock 12 8 232 redstone_block 0 
+setblock 12 9 232 golden_rail 0 
+setblock 10 10 242 sealantern 0 
+setblock 14 10 242 sealantern 0 
+setblock 12 8 242 redstone_block 0 
+setblock 12 9 242 golden_rail 0 
+setblock 10 10 252 sealantern 0 
+setblock 14 10 252 sealantern 0 
+setblock 12 8 252 redstone_block 0 
+setblock 12 9 252 golden_rail 0 
+setblock 10 10 262 sealantern 0 
+setblock 14 10 262 sealantern 0 
+setblock 12 8 262 redstone_block 0 
+setblock 12 9 262 golden_rail 0 
+fill 12 9 275 12 10 275 air 0 
+tp @p 12 125 275 0 90
+fill 1 8 264 23 13 286 concrete 11 hollow
+fill 1 12 264 23 12 286 sealantern 0 
+fill 11 9 264 13 11 264 air 0 
+fill 11 8 274 13 74 277 concrete 3 hollow
+fill 12 9 275 12 74 275 scaffolding 0 
+fill 11 9 275 11 10 276 air 0 
+setblock 12 74 276 air 0 
+setblock 12 8 276 slime 0 
+fill 11 75 274 11 255 274 glowstone 0 
+fill 14 9 -11 14 10 -11 air 0 
+tp @p 14 125 -11 0 90
+fill 10 9 -250 10 10 -250 air 0 
+tp @p 10 125 -250 0 90
+fill 10 8 -251 14 13 -12 concrete 3 hollow
+fill 10 12 -251 14 12 -12 quartz_block 3 
+fill 11 9 -251 13 11 -251 air 0 
+fill 11 9 -12 13 11 -12 air 0 
+fill 12 9 -251 12 9 -12 rail 0 
+setblock 10 10 -251 sealantern 0 
+setblock 14 10 -251 sealantern 0 
+setblock 12 8 -251 redstone_block 0 
+setblock 12 9 -251 golden_rail 0 
+setblock 10 10 -241 sealantern 0 
+setblock 14 10 -241 sealantern 0 
+setblock 12 8 -241 redstone_block 0 
+setblock 12 9 -241 golden_rail 0 
+setblock 10 10 -231 sealantern 0 
+setblock 14 10 -231 sealantern 0 
+setblock 12 8 -231 redstone_block 0 
+setblock 12 9 -231 golden_rail 0 
+setblock 10 10 -221 sealantern 0 
+setblock 14 10 -221 sealantern 0 
+setblock 12 8 -221 redstone_block 0 
+setblock 12 9 -221 golden_rail 0 
+setblock 10 10 -211 sealantern 0 
+setblock 14 10 -211 sealantern 0 
+setblock 12 8 -211 redstone_block 0 
+setblock 12 9 -211 golden_rail 0 
+setblock 10 10 -201 sealantern 0 
+setblock 14 10 -201 sealantern 0 
+setblock 12 8 -201 redstone_block 0 
+setblock 12 9 -201 golden_rail 0 
+setblock 10 10 -191 sealantern 0 
+setblock 14 10 -191 sealantern 0 
+setblock 12 8 -191 redstone_block 0 
+setblock 12 9 -191 golden_rail 0 
+setblock 10 10 -181 sealantern 0 
+setblock 14 10 -181 sealantern 0 
+setblock 12 8 -181 redstone_block 0 
+setblock 12 9 -181 golden_rail 0 
+setblock 10 10 -171 sealantern 0 
+setblock 14 10 -171 sealantern 0 
+setblock 12 8 -171 redstone_block 0 
+setblock 12 9 -171 golden_rail 0 
+setblock 10 10 -161 sealantern 0 
+setblock 14 10 -161 sealantern 0 
+setblock 12 8 -161 redstone_block 0 
+setblock 12 9 -161 golden_rail 0 
+setblock 10 10 -151 sealantern 0 
+setblock 14 10 -151 sealantern 0 
+setblock 12 8 -151 redstone_block 0 
+setblock 12 9 -151 golden_rail 0 
+setblock 10 10 -141 sealantern 0 
+setblock 14 10 -141 sealantern 0 
+setblock 12 8 -141 redstone_block 0 
+setblock 12 9 -141 golden_rail 0 
+setblock 10 10 -131 sealantern 0 
+setblock 14 10 -131 sealantern 0 
+setblock 12 8 -131 redstone_block 0 
+setblock 12 9 -131 golden_rail 0 
+setblock 10 10 -121 sealantern 0 
+setblock 14 10 -121 sealantern 0 
+setblock 12 8 -121 redstone_block 0 
+setblock 12 9 -121 golden_rail 0 
+setblock 10 10 -111 sealantern 0 
+setblock 14 10 -111 sealantern 0 
+setblock 12 8 -111 redstone_block 0 
+setblock 12 9 -111 golden_rail 0 
+setblock 10 10 -101 sealantern 0 
+setblock 14 10 -101 sealantern 0 
+setblock 12 8 -101 redstone_block 0 
+setblock 12 9 -101 golden_rail 0 
+setblock 10 10 -91 sealantern 0 
+setblock 14 10 -91 sealantern 0 
+setblock 12 8 -91 redstone_block 0 
+setblock 12 9 -91 golden_rail 0 
+setblock 10 10 -81 sealantern 0 
+setblock 14 10 -81 sealantern 0 
+setblock 12 8 -81 redstone_block 0 
+setblock 12 9 -81 golden_rail 0 
+setblock 10 10 -71 sealantern 0 
+setblock 14 10 -71 sealantern 0 
+setblock 12 8 -71 redstone_block 0 
+setblock 12 9 -71 golden_rail 0 
+setblock 10 10 -61 sealantern 0 
+setblock 14 10 -61 sealantern 0 
+setblock 12 8 -61 redstone_block 0 
+setblock 12 9 -61 golden_rail 0 
+setblock 10 10 -51 sealantern 0 
+setblock 14 10 -51 sealantern 0 
+setblock 12 8 -51 redstone_block 0 
+setblock 12 9 -51 golden_rail 0 
+setblock 10 10 -41 sealantern 0 
+setblock 14 10 -41 sealantern 0 
+setblock 12 8 -41 redstone_block 0 
+setblock 12 9 -41 golden_rail 0 
+setblock 10 10 -31 sealantern 0 
+setblock 14 10 -31 sealantern 0 
+setblock 12 8 -31 redstone_block 0 
+setblock 12 9 -31 golden_rail 0 
+setblock 10 10 -21 sealantern 0 
+setblock 14 10 -21 sealantern 0 
+setblock 12 8 -21 redstone_block 0 
+setblock 12 9 -21 golden_rail 0 
+fill 12 9 -262 12 10 -262 air 0 
+tp @p 12 125 -262 0 90
+fill 1 8 -273 23 13 -251 concrete 11 hollow
+fill 1 12 -273 23 12 -251 sealantern 0 
+fill 11 9 -251 13 11 -251 air 0 
+fill 11 8 -263 13 74 -260 concrete 3 hollow
+fill 12 9 -262 12 74 -262 scaffolding 0 
+fill 11 9 -262 11 10 -261 air 0 
+setblock 12 74 -261 air 0 
+setblock 12 8 -261 slime 0 
+fill 11 75 -263 11 255 -263 glowstone 0 

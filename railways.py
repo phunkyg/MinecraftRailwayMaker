@@ -12,6 +12,8 @@ HOL = 'hollow'
 PLAYER = '@p'
 MAX_LEVEL = 4
 TP_Y = 125
+BASE_Y = 8
+SEALEVEL = 74
 
 # GL drawing helpers
 
@@ -80,7 +82,7 @@ def draw_cuboid(xmin, ymin, zmin, xmax, ymax, zmax, clr):
 
 
 class Railway():
-    def __init__(self, start_x=0, start_y=4, start_z=0):
+    def __init__(self, start_x=0, start_y=BASE_Y, start_z=0):
         self.dir_x = 1
         self.dir_z = 0
         self.components = []
@@ -357,10 +359,13 @@ class Shaft(RailwayComponent):
     block_base = 'concrete'
     block_inside = 'scaffolding'
     block_landing = 'slime'
-    sea_level = 64
+    block_beacon = 'glowstone'
+    sea_level = SEALEVEL
+    sky_level = 255
     inner_x = 1
     inner_z = 2
     clrs = [((0.96, 0.625, 0.26), 3)]  #orange
+    beacon = True
 
     def __init__(self, railway, parent):
         super().__init__(railway, parent, parent.level)
@@ -402,6 +407,11 @@ class Shaft(RailwayComponent):
         self.add_command(Cheat(AIR, self.ix, self.ymax, self.dz))
         self.add_command(
             Cheat(self.block_landing, self.ix, self.ymin, self.dz))
+
+        # Place a beacon on top
+        self.add_command(
+            Cheat(Shaft.block_beacon, self.xmin, self.ymax + 1, self.zmin, self.xmin, Shaft.sky_level,
+                  self.zmin)) 
 
 
 class Tunnel(RailwayComponent):
