@@ -10,7 +10,8 @@ BLOCK = 0.5
 AIR = 'air'
 HOL = 'hollow'
 PLAYER = '@p'
-MAX_LEVEL = 5
+MAX_LEVEL = 4
+TP_Y = 125
 
 # GL drawing helpers
 
@@ -80,10 +81,13 @@ def draw_cuboid(xmin, ymin, zmin, xmax, ymax, zmax, clr):
 
 class Railway():
     def __init__(self, start_x=0, start_y=4, start_z=0):
+        self.dir_x = 1
+        self.dir_z = 0
         self.components = []
-        self.hub = Station(self, start_x, start_y, start_z, 1, 0, 0)
+        self.hub = Station(self, self, 0, start_x, start_y, start_z)
         self.index_ptr = 0
         self.collect_garbage()
+        self.check_backward()
 
     def __str__(self):
         return str(self.hub)
@@ -112,6 +116,11 @@ class Railway():
 
         return ok
 
+    def check_backward(self):
+        for comp in self.components:
+            if comp.xmin > comp.xmax or comp.ymin > comp.ymax or comp.zmin > comp.zmax:
+                print(comp.dmp())
+
     def collect_garbage(self):
         count = 0
         of = 0
@@ -132,8 +141,9 @@ class Railway():
 
 
 class RailwayComponent():
-    def __init__(self, railway, level):
+    def __init__(self, railway, parent, level):
         self.railway = railway
+        self.parent = parent
         self.index = self.railway.get_index()
         self.children = []
         self.commands = []
@@ -146,6 +156,8 @@ class RailwayComponent():
         self.zmax = None
         self.ymin = None
         self.ymax = None
+        self.dir_x = self.parent.dir_x
+        self.dir_z = self.parent.dir_z
         self.clr = ((1.0, 1.0, 1.0), 1)
 
     def add_child(self, component):
@@ -167,6 +179,12 @@ class RailwayComponent():
                 mainstr += str(child)
         return mainstr
 
+    def dmp(self):
+        msg = '{0},{1},{2:d},{3:d},{4:d},{5:d},{6:d},{7:d}'.format(
+            self.__class__.__name__, str(self.status), self.xmin, self.ymin,
+            self.zmin, self.xmax, self.ymax, self.zmax)
+        return msg
+
     def draw(self):
         if self.status:
             draw_cuboid(self.xmin, self.ymin, self.zmin, self.xmax, self.ymax,
@@ -180,19 +198,39 @@ class RailwayComponent():
             return ok
         if isinstance(comp, Shaft):
             return ok
+        if comp == self.parent:
+            return ok
 
         if self.xmin < comp.xmax and self.xmax > comp.xmin and self.zmin < comp.zmax and self.zmax > comp.zmin:
             ok = False
 
-        msg = '{0},{1:d},{2:d},{3:d},{4:d},{5},{6:d},{7:d},{8:d},{9:d},{10:s}'.format(
-            self.__class__.__name__,self.xmin, self.zmin, self.xmax, self.zmax, comp.__class__.__name__, comp.xmin, comp.zmin, comp.xmax, comp.zmax, str(ok)
-        )
+        msg = self.dmp() + ',' + comp.dmp()
         if not ok:
             print(msg)
         return ok
 
     def set_status(self):
         self.status = self.railway.check_collision(self)
+
+    def flip(self):
+        if self.xmin > self.xmax:
+            xtmp = self.xmax
+            self.xmax = self.xmin
+            self.xmin = xtmp
+        if self.ymin > self.ymax:
+            ytmp = self.ymax
+            self.ymax = self.ymin
+            self.ymin = ytmp
+        if self.zmin > self.zmax:
+            ztmp = self.zmax
+            self.zmax = self.zmin
+            self.zmin = ztmp
+
+    def do_dir(self, dir_x, dir_z):
+        if not dir_x is None:
+            self.dir_x = dir_x
+        if not dir_z is None:
+            self.dir_z = dir_z
 
 
 class Station(RailwayComponent):
@@ -210,8 +248,18 @@ class Station(RailwayComponent):
         ((1.0, 1.0, 0.4), 15),
     ]
 
-    def __init__(self, railway, start_x, base_y, start_z, dir_x, dir_z, level):
-        super().__init__(railway, level)
+    def __init__(self,
+                 railway,
+                 parent,
+                 level,
+                 start_x,
+                 base_y,
+                 start_z,
+                 dir_x=None,
+                 dir_z=None):
+        super().__init__(railway, parent, level)
+        self.do_dir(dir_x, dir_z)
+
         # Set the level and size of this station
         # Decrease slightly each time
         self.size = Station.start_size - (self.level * Station.decrease_size)
@@ -226,25 +274,26 @@ class Station(RailwayComponent):
         self.block_ceiling = Station.block_ceiling
 
         # Calculate outer dimensions of station cuboid
-        if dir_x != 0:
+        if self.dir_x != 0:
             self.xmin = start_x
             self.zmin = start_z - self.half_size
-            self.xmax = self.xmin + (dir_x * self.size)
+            self.xmax = self.xmin + (self.dir_x * self.size)
             self.zmax = start_z + self.half_size
-            self.centre_x = start_x + (dir_x * self.half_size)
+            self.centre_x = start_x + (self.dir_x * self.half_size)
             self.centre_z = start_z
-        elif dir_z != 0:
+        elif self.dir_z != 0:
             self.zmin = start_z
             self.xmin = start_x - self.half_size
-            self.zmax = self.zmin + (dir_z * self.size)
+            self.zmax = self.zmin + (self.dir_z * self.size)
             self.xmax = start_x + self.half_size
-            self.centre_z = start_z + (dir_z * self.half_size)
+            self.centre_z = start_z + (self.dir_z * self.half_size)
             self.centre_x = start_x
 
         self.ymin = base_y
         self.ymax = base_y + Station.inner_height + 2
 
         # Set status
+        self.flip()
         self.set_status()
         if not self.status:
             return
@@ -257,7 +306,7 @@ class Station(RailwayComponent):
             Cheat(
                 None,
                 self.centre_x,
-                self.ymin + 1,
+                TP_Y,
                 self.centre_z,
                 othercommand='tp'))
         self.add_command(
@@ -266,30 +315,42 @@ class Station(RailwayComponent):
         self.add_command(
             Cheat(self.block_ceiling, self.xmin, self.ymax - 1, self.zmin,
                   self.xmax, self.ymax - 1, self.zmax))
+        # punch out entrance if a child
+        if level > 0:
+            half = Tunnel.inner_width // 2
+            ytun = self.ymin + Tunnel.inner_height
+            if dir_z != 0:
+                self.add_command(
+                    Cheat(AIR, start_x - half, self.ymin + 1, start_z, start_x + half,
+                        ytun, start_z))
+            else:
+                self.add_command(
+                    Cheat(AIR, start_x, self.ymin + 1, start_z - half, start_x,
+                        ytun, start_z + half))                
 
         # Spawn children
-        self.add_child(
-            Shaft(self.railway, self, self.xmax, self.ymin, self.zmax))
-
         even = self.level % 2 == 0
 
+        if even or self.level == MAX_LEVEL:
+            self.add_child(Shaft(self.railway, self))
+
         if self.level < MAX_LEVEL:
-            if dir_x == 1 or level == 0 or (dir_z != 0 and even):
+            if self.dir_x == 1 or level == 0 or (self.dir_z != 0 and even):
                 self.add_child(
-                    Tunnel(self.railway, self.xmax, self.ymin, self.centre_z,
-                           +1, 0, self.level + 1))
-            if dir_x == -1 or level == 0 or (dir_z != 0 and even):
+                    Tunnel(self.railway, self, self.level + 1, self.xmax,
+                           self.ymin, self.centre_z, +1, 0))
+            if self.dir_x == -1 or level == 0 or (self.dir_z != 0 and even):
                 self.add_child(
-                    Tunnel(self.railway, self.xmin, self.ymin, self.centre_z,
-                           -1, 0, self.level + 1))
-            if dir_z == 1 or level == 0 or (dir_x != 0 and even):
+                    Tunnel(self.railway, self, self.level + 1, self.xmin,
+                           self.ymin, self.centre_z, -1, 0))
+            if self.dir_z == 1 or level == 0 or (self.dir_x != 0 and even):
                 self.add_child(
-                    Tunnel(self.railway, self.centre_x, self.ymin, self.zmax,
-                           0, +1, self.level + 1))
-            if dir_z == -1 or level == 0 or (dir_x != 0 and even):
+                    Tunnel(self.railway, self, self.level + 1, self.centre_x,
+                           self.ymin, self.zmax, 0, +1))
+            if self.dir_z == -1 or level == 0 or (self.dir_x != 0 and even):
                 self.add_child(
-                    Tunnel(self.railway, self.centre_x, self.ymin, self.zmin,
-                           0, -1, self.level + 1))
+                    Tunnel(self.railway, self, self.level + 1, self.centre_x,
+                           self.ymin, self.zmin, 0, -1))
 
 
 class Shaft(RailwayComponent):
@@ -299,11 +360,10 @@ class Shaft(RailwayComponent):
     sea_level = 64
     inner_x = 1
     inner_z = 2
-    clrs = [((0.96, 0.625, 0.26), 2)]  #orange
+    clrs = [((0.96, 0.625, 0.26), 3)]  #orange
 
-    def __init__(self, railway, station, corner_x, base_y, corner_z):
-        super().__init__(railway, station.level)
-        self.station = station
+    def __init__(self, railway, parent):
+        super().__init__(railway, parent, parent.level)
         # Shaft builds slightly inside the outer corner of the station, then sticking out
         # materials and colour stay the same for now, but support change for future
         self.clr = Shaft.clrs[0]
@@ -312,23 +372,20 @@ class Shaft(RailwayComponent):
         self.block_landing = Shaft.block_landing
 
         # Calculate outer dimensions of shaft cuboid
-        self.xmin = corner_x
-        self.zmin = corner_z - 1
-        self.xmax = corner_x + Shaft.inner_x + 1
-        self.zmax = corner_z - Shaft.inner_z - 2
+        self.xmin = parent.centre_x - 1
+        self.xmax = parent.centre_x + Shaft.inner_x
+        self.zmin = parent.centre_z - 1
+        self.zmax = parent.centre_z + Shaft.inner_z
+        self.ymin = parent.ymin
+        self.ymax = Shaft.sea_level
+        # Door cutout
+        self.dz = self.zmax - 1
+        self.dy = self.ymin + 2
 
         # Calculate the inside structure fill
-        self.ix = self.xmin + 1
-        self.iz = self.zmin - 1
-        self.iy = base_y + 1
-
-        self.ymin = base_y
-        self.ymax = Shaft.sea_level
-
-        # Door cutout
-        # door x = xmin
-        self.dz = self.zmax + 1
-        self.dy = base_y + 2
+        self.ix = parent.centre_x
+        self.iz = parent.centre_z
+        self.iy = self.ymin + 1
 
         self.tz = self.zmin - 1
 
@@ -340,7 +397,7 @@ class Shaft(RailwayComponent):
             Cheat(self.block_inside, self.ix, self.iy, self.iz, self.ix,
                   self.ymax, self.iz))
         self.add_command(
-            Cheat(AIR, self.xmin, self.iy, self.zmin - 1, self.xmin, self.dy,
+            Cheat(AIR, self.xmin, self.iy, self.zmin + 1, self.xmin, self.dy,
                   self.dz))
         self.add_command(Cheat(AIR, self.ix, self.ymax, self.dz))
         self.add_command(
@@ -359,21 +416,31 @@ class Tunnel(RailwayComponent):
     inner_width = 3
     inner_height = 3
     length_longest = 256
-    length_random = 64
+    length_random = 32
     clrs = [((1.0, 0.0, 0.0), 3), ((1.0, 0.4, 0.4), 4), ((0.0, 1.0, 0.0), 5),
             ((0.4, 1.0, 0.4), 6), ((0.0, 0.0, 1.0), 7), ((0.4, 0.4, 1.0), 8)]
 
-    def __init__(self, railway, start_x, base_y, start_z, dir_x, dir_z, level):
-        super().__init__(railway, level)
+    def __init__(self,
+                 railway,
+                 parent,
+                 level,
+                 start_x,
+                 base_y,
+                 start_z,
+                 dir_x=None,
+                 dir_z=None):
+        super().__init__(railway, parent, level)
+        self.do_dir(dir_x, dir_z)
 
         # Tunnel starts slightly inside the outer wall of the station, then sticking out
         # in the direction stated by dir_x and dir_z
         # color by direction for now
         self.block_base = Shaft.block_base
-        #self.length = (Tunnel.length_longest // ((self.level+1) //2) )+ random.randint(
+        self.length = (Tunnel.length_longest // (
+            (self.level + 1) // 2)) + random.randint(-Tunnel.length_random,
+                                                     Tunnel.length_random)
+        #self.length = Tunnel.length_longest + random.randint(
         #    -Tunnel.length_random, Tunnel.length_random)
-        self.length = Tunnel.length_longest + random.randint(
-            -Tunnel.length_random, Tunnel.length_random)
         #(Tunnel.length_reduceby * level)
         self.half_width = Tunnel.inner_width // 2
 
@@ -383,21 +450,21 @@ class Tunnel(RailwayComponent):
 
         # Calculate outer dimensions of shaft cuboid
         # going z + or - then x is width , z is length
-        if dir_z != 0:
-            assert dir_x == 0, "Tunnel Can only go X or Z not both!"
-            clrind = dir_z + 1
+        if self.dir_z != 0:
+            assert self.dir_x == 0, "Tunnel Can only go X or Z not both!"
+            clrind = self.dir_z + 1
             self.xmin = start_x - self.half_width - 1
             self.xmax = start_x + self.half_width + 1
             self.zmin = start_z
-            self.zmax = start_z + (self.length * dir_z)
+            self.zmax = start_z + (self.length * self.dir_z)
 
-        elif dir_x != 0:
-            assert dir_z == 0, "Tunnel Can only go X or Z not both!"
-            clrind = dir_x + 2
+        elif self.dir_x != 0:
+            assert self.dir_z == 0, "Tunnel Can only go X or Z not both!"
+            clrind = self.dir_x + 2
             self.zmin = start_z - self.half_width - 1
             self.zmax = start_z + self.half_width + 1
             self.xmin = start_x
-            self.xmax = start_x + (self.length * dir_x)
+            self.xmax = start_x + (self.length * self.dir_x)
             self.rail_data = 1
 
         self.clr = Tunnel.clrs[clrind]
@@ -408,20 +475,33 @@ class Tunnel(RailwayComponent):
         self.ygap = self.ymax - 2
 
         # set status
+        self.flip()
         self.set_status()
         if not self.status:
             return
 
         # Set the mc commands for the tunnel
         self.add_command(
-            Cheat(AIR, self.xmax - dir_x, self.yrail, self.zmax - dir_z,
-                  self.xmax - dir_x, self.yrail + 1, self.zmax - dir_z))
+            Cheat(AIR, self.xmax - self.dir_x, self.yrail,
+                  self.zmax - self.dir_z, self.xmax - self.dir_x,
+                  self.yrail + 1, self.zmax - self.dir_z))
         self.add_command(
             Cheat(
                 None,
-                self.xmax - dir_x,
-                self.yrail,
-                self.zmax - dir_z,
+                self.xmax - self.dir_x,
+                TP_Y,
+                self.zmax - self.dir_z,
+                othercommand='tp'))
+        self.add_command(
+            Cheat(AIR, self.xmin - self.dir_x, self.yrail,
+                  self.zmin - self.dir_z, self.xmin - self.dir_x,
+                  self.yrail + 1, self.zmin - self.dir_z))
+        self.add_command(
+            Cheat(
+                None,
+                self.xmin - self.dir_x,
+                TP_Y,
+                self.zmin - self.dir_z,
                 othercommand='tp'))
         self.add_command(
             Cheat(self.block_base, self.xmin, self.ymin, self.zmin, self.xmax,
@@ -431,7 +511,7 @@ class Tunnel(RailwayComponent):
                   self.xmax, self.ymax - 1, self.zmax,
                   self.block_ceiling_data))
         # Place rail, lamp blocks and powered rail segments
-        if dir_z != 0:
+        if self.dir_z != 0:
             # knock out entrance and exit
             self.add_command(
                 Cheat(AIR, self.xmin + 1, self.yrail, self.zmin, self.xmax - 1,
@@ -443,8 +523,7 @@ class Tunnel(RailwayComponent):
             self.add_command(
                 Cheat(self.block_rail, start_x, self.yrail, self.zmin, start_x,
                       self.yrail, self.zmax, self.rail_data))
-            for zlamp in range(self.zmin, self.zmax,
-                               self.lamp_spacing * dir_z):
+            for zlamp in range(self.zmin, self.zmax, self.lamp_spacing):
                 # lamp either side
                 self.add_command(
                     Cheat(self.block_lamp, self.xmin, self.ylamp, zlamp))
@@ -458,11 +537,16 @@ class Tunnel(RailwayComponent):
                     Cheat(self.block_poweredrail, start_x, self.yrail, zlamp,
                           self.rail_data & 8))
             # Spawn child station
-            self.add_child(
-                Station(self.railway, start_x, base_y, self.zmax, dir_x, dir_z,
-                        self.level))
+            if self.dir_z == 1:
+                self.add_child(
+                    Station(self.railway, self, self.level, start_x, base_y,
+                            self.zmax, self.dir_x, self.dir_z))
+            else:
+                self.add_child(
+                    Station(self.railway, self, self.level, start_x, base_y,
+                            self.zmin, self.dir_x, self.dir_z))
 
-        elif dir_x != 0:
+        elif self.dir_x != 0:
             # knock out entrance and exit
             self.add_command(
                 Cheat(AIR, self.xmin, self.yrail, self.zmin + 1, self.xmin,
@@ -474,8 +558,7 @@ class Tunnel(RailwayComponent):
             self.add_command(
                 Cheat(self.block_rail, self.xmin, self.yrail, start_z,
                       self.xmax, self.yrail, start_z, self.rail_data))
-            for xlamp in range(self.xmin, self.xmax,
-                               self.lamp_spacing * dir_x):
+            for xlamp in range(self.xmin, self.xmax, self.lamp_spacing):
                 # lamp either side
                 self.add_command(
                     Cheat(self.block_lamp, xlamp, self.ylamp, self.zmin))
@@ -489,9 +572,14 @@ class Tunnel(RailwayComponent):
                     Cheat(self.block_poweredrail, xlamp, self.yrail, start_z,
                           self.rail_data & 8))
             # Spawn child station
-            self.add_child(
-                Station(self.railway, self.xmax, base_y, start_z, dir_x, dir_z,
-                        self.level))
+            if self.dir_x == 1:
+                self.add_child(
+                    Station(self.railway, self, self.level, self.xmax, base_y,
+                            start_z, self.dir_x, self.dir_z))
+            else:
+                self.add_child(
+                    Station(self.railway, self, self.level, self.xmin, base_y,
+                            start_z, self.dir_x, self.dir_z))
 
 
 class Cheat():
@@ -540,7 +628,7 @@ class Cheat():
                 self.command, self.xmin, self.ymin, self.zmin, self.block,
                 self.bdata, self.modes)
         elif self.command == 'tp':
-            mainstr = '{0} {1} {2:d} {3:d} {4:d}'.format(
+            mainstr = '{0} {1} {2:d} {3:d} {4:d} 0 90'.format(
                 self.command, PLAYER, self.xmin, self.ymin, self.zmin)
         else:
             raise ValueError("commands known are fill, setblock and tp")
@@ -675,6 +763,7 @@ class Window(pyglet.window.Window):
         self.railway = Railway()
 
     def on_key_release(self, symbol, modifiers):
+        global MAX_LEVEL
         #print(key.symbol_string(symbol))
         if symbol == key.W:
             self.xRotation -= INCREMENT
@@ -706,6 +795,12 @@ class Window(pyglet.window.Window):
             self.generate()
         elif symbol == key.P:
             self.railway.output()
+        elif symbol == key.PLUS:
+            MAX_LEVEL += 1
+            self.generate()
+        elif symbol == key.MINUS:
+            MAX_LEVEL -= 1
+            self.generate()
 
 
 if __name__ == '__main__':
