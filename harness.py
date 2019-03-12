@@ -77,24 +77,26 @@ with open('./generated_commands.txt', 'rU') as f:
 print_fb('started... waiting...')
 r.wait()
 print_fb('Played connection detected...')
-time.sleep(10)
+time.sleep(16)
 
 
 for cmd in cmds:
-    print(bcolors.OKBLUE + str(cmd) + bcolors.ENDC)
+    print(bcolors.OKBLUE + cmd.decode("utf-8") + bcolors.ENDC)
     p.stdin.write(cmd)
     # if cmd[-1] != b"\n":
     #     p.stdin.write(b"\n")
     p.stdin.flush()
     r.wait()
     if cmd[:2] == b"tp":
-        time.sleep(6)
+        time.sleep(4)
 
 inp = ""
-while inp != "stop":
-    inp = input('/')
+while inp != "stop\n":
+    inp = input('/') + "\n"
+    #print_fb(inp)
     p.stdin.write(bytes(inp, 'utf-8'))
     p.stdin.flush()
+    r.wait()
 
 
 #print_fb('waiting for server to quit')
