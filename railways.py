@@ -10,7 +10,7 @@ BLOCK = 0.5
 AIR = 'air'
 HOL = 'hollow'
 PLAYER = '@p'
-MAX_LEVEL = 3
+MAX_LEVEL = 5
 
 # GL drawing helpers
 
@@ -82,6 +82,8 @@ class Railway():
     def __init__(self, start_x=0, start_y=4, start_z=0):
         self.components = []
         self.hub = Station(self, start_x, start_y, start_z, 1, 0, 0)
+        self.index_ptr = 0
+        self.collect_garbage()
 
     def __str__(self):
         return str(self.hub)
@@ -90,7 +92,13 @@ class Railway():
         self.hub.draw()
 
     def output(self):
-        print(self)
+        with open('./generated_commands.txt', 'w') as f:
+            f.write(str(self))
+        print('Command file written!')
+
+    def get_index(self):
+        self.index_ptr += 1
+        yield self.index_ptr
 
     def reg(self, component):
         self.components.append(component)
@@ -98,16 +106,10 @@ class Railway():
     def check_collision(self, component):
         ok = True
         for comp in self.components:
-            if component != comp and not isinstance(comp, Shaft):
-                if all([
-                        component.xmin < comp.xmax, component.xmax > comp.xmin,
-                        component.zmin < comp.zmax, component.zmax > comp.zmin
-                ]):
-                    ok = False
-                    print('collision')
-                    break
-        if ok:
-            print('ok')
+            ok = component.check_collision(comp)
+            if not ok:
+                break
+
         return ok
 
     def collect_garbage(self):
@@ -129,7 +131,71 @@ class Railway():
         print('Garbage Collected {0:d} of {1:d} objects'.format(count, of))
 
 
-class Station():
+class RailwayComponent():
+    def __init__(self, railway, level):
+        self.railway = railway
+        self.index = self.railway.get_index()
+        self.children = []
+        self.commands = []
+        self.level = level
+        self.railway.reg(self)
+        self.status = True
+        self.xmin = None
+        self.xmax = None
+        self.zmin = None
+        self.zmax = None
+        self.ymin = None
+        self.ymax = None
+        self.clr = ((1.0, 1.0, 1.0), 1)
+
+    def add_child(self, component):
+        if component.status:
+            self.children.append(component)
+        else:
+            del component
+            print('component rejected')
+
+    def add_command(self, command):
+        self.commands.append(command)
+
+    def __str__(self):
+        mainstr = ''
+        if self.status:
+            for piece in self.commands:
+                mainstr += str(piece) + '\n'
+            for child in self.children:
+                mainstr += str(child)
+        return mainstr
+
+    def draw(self):
+        if self.status:
+            draw_cuboid(self.xmin, self.ymin, self.zmin, self.xmax, self.ymax,
+                        self.zmax, self.clr[0])
+            for child in self.children:
+                child.draw()
+
+    def check_collision(self, comp):
+        ok = True
+        if self == comp:
+            return ok
+        if isinstance(comp, Shaft):
+            return ok
+
+        if self.xmin < comp.xmax and self.xmax > comp.xmin and self.zmin < comp.zmax and self.zmax > comp.zmin:
+            ok = False
+
+        msg = '{0},{1:d},{2:d},{3:d},{4:d},{5},{6:d},{7:d},{8:d},{9:d},{10:s}'.format(
+            self.__class__.__name__,self.xmin, self.zmin, self.xmax, self.zmax, comp.__class__.__name__, comp.xmin, comp.zmin, comp.xmax, comp.zmax, str(ok)
+        )
+        if not ok:
+            print(msg)
+        return ok
+
+    def set_status(self):
+        self.status = self.railway.check_collision(self)
+
+
+class Station(RailwayComponent):
     block_base = 'concrete'
     block_ceiling = 'sealantern'
     start_size = 24
@@ -145,11 +211,9 @@ class Station():
     ]
 
     def __init__(self, railway, start_x, base_y, start_z, dir_x, dir_z, level):
-        self.railway = railway
-        self.railway.reg(self)
+        super().__init__(railway, level)
         # Set the level and size of this station
         # Decrease slightly each time
-        self.level = level
         self.size = Station.start_size - (self.level * Station.decrease_size)
         self.half_size = self.size // 2  # use integer divison so no half blocks!
 
@@ -181,63 +245,54 @@ class Station():
         self.ymax = base_y + Station.inner_height + 2
 
         # Set status
-        self.status = self.railway.check_collision(self)
+        self.set_status()
+        if not self.status:
+            return
 
-        if self.status:
-            # Set the mc commands for the outer and ceiling
-            self.commands = [
-                Cheat(
-                    None,
-                    self.xmin + 1,
-                    self.ymin + 1,
-                    self.zmin + 1,
-                    othercommand='tp'),
-                Cheat(self.block_base, self.xmin, self.ymin, self.zmin,
-                      self.xmax, self.ymax, self.zmax, self.clr[1], HOL),
-                Cheat(self.block_ceiling, self.xmin, self.ymax - 1, self.zmin,
-                      self.xmax, self.ymax - 1, self.zmax)
-            ]
+        # Set the mc commands for the outer and ceiling
+        self.add_command(
+            Cheat(AIR, self.centre_x, self.ymin + 1, self.centre_z,
+                  self.centre_x, self.ymin + 2, self.centre_z))
+        self.add_command(
+            Cheat(
+                None,
+                self.centre_x,
+                self.ymin + 1,
+                self.centre_z,
+                othercommand='tp'))
+        self.add_command(
+            Cheat(self.block_base, self.xmin, self.ymin, self.zmin, self.xmax,
+                  self.ymax, self.zmax, self.clr[1], HOL))
+        self.add_command(
+            Cheat(self.block_ceiling, self.xmin, self.ymax - 1, self.zmin,
+                  self.xmax, self.ymax - 1, self.zmax))
 
-            # Spawn children
-            self.children = [
-                Shaft(self.railway, self, self.xmax, self.ymin, self.zmax)
-            ]
-            if self.level < MAX_LEVEL:
-                if dir_x != -1 or level == 0:
-                    self.children.append(
-                        Tunnel(self.railway, self.xmax, self.ymin,
-                               self.centre_z, +1, 0, self.level + 1))
-                if dir_x != 1 or level == 0:
-                    self.children.append(
-                        Tunnel(self.railway, self.xmin, self.ymin,
-                               self.centre_z, -1, 0, self.level + 1))
-                if dir_z != -1 or level == 0:
-                    self.children.append(
-                        Tunnel(self.railway, self.centre_x, self.ymin,
-                               self.zmax, 0, +1, self.level + 1))
-                if dir_z != 1 or level == 0:
-                    self.children.append(
-                        Tunnel(self.railway, self.centre_x, self.ymin,
-                               self.zmin, 0, -1, self.level + 1))
+        # Spawn children
+        self.add_child(
+            Shaft(self.railway, self, self.xmax, self.ymin, self.zmax))
 
-    def __str__(self):
-        mainstr = ''
-        if self.status:
-            for piece in self.commands:
-                mainstr += str(piece) + '\n'
-            for child in self.children:
-                mainstr += str(child)
-        return mainstr
+        even = self.level % 2 == 0
 
-    def draw(self):
-        if self.status:
-            draw_cuboid(self.xmin, self.ymin, self.zmin, self.xmax, self.ymax,
-                        self.zmax, self.clr[0])
-            for child in self.children:
-                child.draw()
+        if self.level < MAX_LEVEL:
+            if dir_x == 1 or level == 0 or (dir_z != 0 and even):
+                self.add_child(
+                    Tunnel(self.railway, self.xmax, self.ymin, self.centre_z,
+                           +1, 0, self.level + 1))
+            if dir_x == -1 or level == 0 or (dir_z != 0 and even):
+                self.add_child(
+                    Tunnel(self.railway, self.xmin, self.ymin, self.centre_z,
+                           -1, 0, self.level + 1))
+            if dir_z == 1 or level == 0 or (dir_x != 0 and even):
+                self.add_child(
+                    Tunnel(self.railway, self.centre_x, self.ymin, self.zmax,
+                           0, +1, self.level + 1))
+            if dir_z == -1 or level == 0 or (dir_x != 0 and even):
+                self.add_child(
+                    Tunnel(self.railway, self.centre_x, self.ymin, self.zmin,
+                           0, -1, self.level + 1))
 
 
-class Shaft():
+class Shaft(RailwayComponent):
     block_base = 'concrete'
     block_inside = 'scaffolding'
     block_landing = 'slime'
@@ -247,9 +302,8 @@ class Shaft():
     clrs = [((0.96, 0.625, 0.26), 2)]  #orange
 
     def __init__(self, railway, station, corner_x, base_y, corner_z):
+        super().__init__(railway, station.level)
         self.station = station
-        self.railway = railway
-        self.railway.reg(self)
         # Shaft builds slightly inside the outer corner of the station, then sticking out
         # materials and colour stay the same for now, but support change for future
         self.clr = Shaft.clrs[0]
@@ -279,36 +333,21 @@ class Shaft():
         self.tz = self.zmin - 1
 
         # Set the mc commands for the shaft
-        self.commands = [
+        self.add_command(
             Cheat(self.block_base, self.xmin, self.ymin, self.zmin, self.xmax,
-                  self.ymax, self.zmax, self.clr[1], HOL),
+                  self.ymax, self.zmax, self.clr[1], HOL))
+        self.add_command(
             Cheat(self.block_inside, self.ix, self.iy, self.iz, self.ix,
-                  self.ymax, self.iz),
+                  self.ymax, self.iz))
+        self.add_command(
             Cheat(AIR, self.xmin, self.iy, self.zmin - 1, self.xmin, self.dy,
-                  self.dz),
-            Cheat(AIR, self.ix, self.ymax, self.dz),
-            Cheat(self.block_landing, self.ix, self.ymin, self.dz)
-        ]
-
-        # Spawn children
-        self.children = []
-
-    def __str__(self):
-        mainstr = ''
-        if self.station.status:
-            for piece in self.commands:
-                mainstr += str(piece) + '\n'
-            for child in self.children:
-                mainstr += str(child)
-        return mainstr
-
-    def draw(self):
-        if self.station.status:
-            draw_cuboid(self.xmin, self.ymin, self.zmin, self.xmax, self.ymax,
-                        self.zmax, self.clr[0])
+                  self.dz))
+        self.add_command(Cheat(AIR, self.ix, self.ymax, self.dz))
+        self.add_command(
+            Cheat(self.block_landing, self.ix, self.ymin, self.dz))
 
 
-class Tunnel():
+class Tunnel(RailwayComponent):
     block_base = 'concrete'
     block_ceiling = 'quartz_block'
     block_ceiling_data = 3
@@ -319,19 +358,20 @@ class Tunnel():
     lamp_spacing = 10
     inner_width = 3
     inner_height = 3
-    length_longest = 300
-    length_random = 60
+    length_longest = 256
+    length_random = 64
     clrs = [((1.0, 0.0, 0.0), 3), ((1.0, 0.4, 0.4), 4), ((0.0, 1.0, 0.0), 5),
             ((0.4, 1.0, 0.4), 6), ((0.0, 0.0, 1.0), 7), ((0.4, 0.4, 1.0), 8)]
 
     def __init__(self, railway, start_x, base_y, start_z, dir_x, dir_z, level):
-        self.railway = railway
-        self.railway.reg(self)
+        super().__init__(railway, level)
+
         # Tunnel starts slightly inside the outer wall of the station, then sticking out
         # in the direction stated by dir_x and dir_z
         # color by direction for now
-        self.level = level
         self.block_base = Shaft.block_base
+        #self.length = (Tunnel.length_longest // ((self.level+1) //2) )+ random.randint(
+        #    -Tunnel.length_random, Tunnel.length_random)
         self.length = Tunnel.length_longest + random.randint(
             -Tunnel.length_random, Tunnel.length_random)
         #(Tunnel.length_reduceby * level)
@@ -368,97 +408,90 @@ class Tunnel():
         self.ygap = self.ymax - 2
 
         # set status
-        self.status = self.railway.check_collision(self)
+        self.set_status()
+        if not self.status:
+            return
 
-        if self.status:
+        # Set the mc commands for the tunnel
+        self.add_command(
+            Cheat(AIR, self.xmax - dir_x, self.yrail, self.zmax - dir_z,
+                  self.xmax - dir_x, self.yrail + 1, self.zmax - dir_z))
+        self.add_command(
+            Cheat(
+                None,
+                self.xmax - dir_x,
+                self.yrail,
+                self.zmax - dir_z,
+                othercommand='tp'))
+        self.add_command(
+            Cheat(self.block_base, self.xmin, self.ymin, self.zmin, self.xmax,
+                  self.ymax, self.zmax, self.clr[1], HOL))
+        self.add_command(
+            Cheat(self.block_ceiling, self.xmin, self.ymax - 1, self.zmin,
+                  self.xmax, self.ymax - 1, self.zmax,
+                  self.block_ceiling_data))
+        # Place rail, lamp blocks and powered rail segments
+        if dir_z != 0:
+            # knock out entrance and exit
+            self.add_command(
+                Cheat(AIR, self.xmin + 1, self.yrail, self.zmin, self.xmax - 1,
+                      self.ygap, self.zmin))
+            self.add_command(
+                Cheat(AIR, self.xmin + 1, self.yrail, self.zmax, self.xmax - 1,
+                      self.ygap, self.zmax))
+            self.rail_data = 0
+            self.add_command(
+                Cheat(self.block_rail, start_x, self.yrail, self.zmin, start_x,
+                      self.yrail, self.zmax, self.rail_data))
+            for zlamp in range(self.zmin, self.zmax,
+                               self.lamp_spacing * dir_z):
+                # lamp either side
+                self.add_command(
+                    Cheat(self.block_lamp, self.xmin, self.ylamp, zlamp))
+                self.add_command(
+                    Cheat(self.block_lamp, self.xmax, self.ylamp, zlamp))
+                # redstone under rail
+                self.add_command(
+                    Cheat(self.block_power, start_x, self.ymin, zlamp))
+                # powered rail
+                self.add_command(
+                    Cheat(self.block_poweredrail, start_x, self.yrail, zlamp,
+                          self.rail_data & 8))
+            # Spawn child station
+            self.add_child(
+                Station(self.railway, start_x, base_y, self.zmax, dir_x, dir_z,
+                        self.level))
 
-            # Set the mc commands for the tunnel
-            self.commands = [
-                Cheat(self.block_base, self.xmin, self.ymin, self.zmin,
-                      self.xmax, self.ymax, self.zmax, self.clr[1], HOL),
-                Cheat(self.block_ceiling, self.xmin, self.ymax - 1, self.zmin,
-                      self.xmax, self.ymax - 1, self.zmax,
-                      self.block_ceiling_data),
-            ]
-            # Place rail, lamp blocks and powered rail segments
-            if dir_z != 0:
-                # knock out entrance and exit
-                self.commands.append(
-                    Cheat(AIR, self.xmin + 1, self.yrail, self.zmin,
-                          self.xmax - 1, self.ygap, self.zmin))
-                self.commands.append(
-                    Cheat(AIR, self.xmin + 1, self.yrail, self.zmax,
-                          self.xmax - 1, self.ygap, self.zmax))
-                self.rail_data = 0
-                self.commands.append(
-                    Cheat(self.block_rail, start_x, self.yrail, self.zmin,
-                          start_x, self.yrail, self.zmax, self.rail_data))
-                for zlamp in range(self.zmin, self.zmax,
-                                   self.lamp_spacing * dir_z):
-                    # lamp either side
-                    self.commands.append(
-                        Cheat(self.block_lamp, self.xmin, self.ylamp, zlamp))
-                    self.commands.append(
-                        Cheat(self.block_lamp, self.xmax, self.ylamp, zlamp))
-                    # redstone under rail
-                    self.commands.append(
-                        Cheat(self.block_power, start_x, self.ymin, zlamp))
-                    # powered rail
-                    self.commands.append(
-                        Cheat(self.block_poweredrail, start_x, self.yrail,
-                              zlamp, self.rail_data & 8))
-                # Spawn child station
-                self.children = [
-                    Station(self.railway, start_x, base_y, self.zmax, dir_x,
-                            dir_z, self.level)
-                ]
-            elif dir_x != 0:
-                # knock out entrance and exit
-                self.commands.append(
-                    Cheat(AIR, self.xmin, self.yrail, self.zmin + 1, self.xmin,
-                          self.ygap, self.zmax - 1))
-                self.commands.append(
-                    Cheat(AIR, self.xmax, self.yrail, self.zmin + 1, self.xmax,
-                          self.ygap, self.zmax - 1))
-                self.rail_data = 1
-                self.commands.append(
-                    Cheat(self.block_rail, self.xmin, self.yrail, start_z,
-                          self.xmax, self.yrail, start_z, self.rail_data))
-                for xlamp in range(self.xmin, self.xmax,
-                                   self.lamp_spacing * dir_x):
-                    # lamp either side
-                    self.commands.append(
-                        Cheat(self.block_lamp, xlamp, self.ylamp, self.zmin))
-                    self.commands.append(
-                        Cheat(self.block_lamp, xlamp, self.ylamp, self.zmax))
-                    # redstone under rail
-                    self.commands.append(
-                        Cheat(self.block_power, xlamp, self.ymin, start_z))
-                    # powered rail
-                    self.commands.append(
-                        Cheat(self.block_poweredrail, xlamp, self.yrail,
-                              start_z, self.rail_data & 8))
-                # Spawn child station
-                self.children = [
-                    Station(self.railway, self.xmax, base_y, start_z, dir_x,
-                            dir_z, self.level)
-                ]
-
-    def __str__(self):
-        mainstr = ''
-        if self.status:
-            for piece in self.commands:
-                mainstr += str(piece) + '\n'
-            for child in self.children:
-                mainstr += str(child)
-        return mainstr
-
-    def draw(self):
-        if self.status:
-            draw_cuboid(self.xmin, self.ymin, self.zmin, self.xmax, self.ymax,
-                        self.zmax, self.clr[0])
-            for child in self.children:
-                child.draw()
+        elif dir_x != 0:
+            # knock out entrance and exit
+            self.add_command(
+                Cheat(AIR, self.xmin, self.yrail, self.zmin + 1, self.xmin,
+                      self.ygap, self.zmax - 1))
+            self.add_command(
+                Cheat(AIR, self.xmax, self.yrail, self.zmin + 1, self.xmax,
+                      self.ygap, self.zmax - 1))
+            self.rail_data = 1
+            self.add_command(
+                Cheat(self.block_rail, self.xmin, self.yrail, start_z,
+                      self.xmax, self.yrail, start_z, self.rail_data))
+            for xlamp in range(self.xmin, self.xmax,
+                               self.lamp_spacing * dir_x):
+                # lamp either side
+                self.add_command(
+                    Cheat(self.block_lamp, xlamp, self.ylamp, self.zmin))
+                self.add_command(
+                    Cheat(self.block_lamp, xlamp, self.ylamp, self.zmax))
+                # redstone under rail
+                self.add_command(
+                    Cheat(self.block_power, xlamp, self.ymin, start_z))
+                # powered rail
+                self.add_command(
+                    Cheat(self.block_poweredrail, xlamp, self.yrail, start_z,
+                          self.rail_data & 8))
+            # Spawn child station
+            self.add_child(
+                Station(self.railway, self.xmax, base_y, start_z, dir_x, dir_z,
+                        self.level))
 
 
 class Cheat():
@@ -536,7 +569,8 @@ class Window(pyglet.window.Window):
             self.uwidth, self.uheight, title, resizable=True)
         glClearColor(0, 0, 0, 1)
         glEnable(GL_DEPTH_TEST)
-        self.railway = Railway()
+        self.railway = None
+        self.generate()
 
     def on_draw(self):
         # Clear the current GL Window
@@ -570,60 +604,7 @@ class Window(pyglet.window.Window):
         glRotatef(self.zRotation, 0, 0, 1)
 
     def draw_cube(self, size=3.0):
-
-        # White side - BACK
-        glBegin(GL_POLYGON)
-        glColor3f(*self.clr_blue)
-        glVertex3f(size, -size, size)
-        glVertex3f(size, size, size)
-        glVertex3f(-size, size, size)
-        glVertex3f(-size, -size, size)
-        glEnd()
-
-        # White side - BACK
-        glBegin(GL_POLYGON)
-        glColor3f(*self.clr_blue_light)
-        glVertex3f(size, -size, -size)
-        glVertex3f(size, size, -size)
-        glVertex3f(-size, size, -size)
-        glVertex3f(-size, -size, -size)
-        glEnd()
-
-        # Purple side - RIGHT
-        glBegin(GL_POLYGON)
-        glColor3f(*self.clr_red)
-        glVertex3f(size, -size, -size)
-        glVertex3f(size, size, -size)
-        glVertex3f(size, size, size)
-        glVertex3f(size, -size, size)
-        glEnd()
-
-        # Green side - LEFT
-        glBegin(GL_POLYGON)
-        glColor3f(*self.clr_red_light)
-        glVertex3f(-size, -size, size)
-        glVertex3f(-size, size, size)
-        glVertex3f(-size, size, -size)
-        glVertex3f(-size, -size, -size)
-        glEnd()
-
-        # Blue side - TOP
-        glBegin(GL_POLYGON)
-        glColor3f(*self.clr_green)
-        glVertex3f(size, size, size)
-        glVertex3f(size, size, -size)
-        glVertex3f(-size, size, -size)
-        glVertex3f(-size, size, size)
-        glEnd()
-
-        # Red side - BOTTOM
-        glBegin(GL_POLYGON)
-        glColor3f(*self.clr_green_light)
-        glVertex3f(size, -size, -size)
-        glVertex3f(size, -size, size)
-        glVertex3f(-size, -size, size)
-        glVertex3f(-size, -size, -size)
-        glEnd()
+        draw_cuboid(-size, -size, -size, size, size, size, (1.0, 1.0, 1.0))
 
     def draw_axes(self):
         glBegin(GL_LINES)
@@ -688,6 +669,11 @@ class Window(pyglet.window.Window):
         #gluOrtho2D(-hw,hw,-hh,hh)
         glTranslatef(0, 0, -hw)
 
+    def generate(self):
+        if not self.railway is None:
+            del self.railway
+        self.railway = Railway()
+
     def on_key_release(self, symbol, modifiers):
         #print(key.symbol_string(symbol))
         if symbol == key.W:
@@ -714,8 +700,10 @@ class Window(pyglet.window.Window):
         elif symbol == key.F:
             self.reset_rotation(True)
             self.reset_zoom()
-        elif symbol == key.G:
+        elif symbol == key.C:
             self.railway.collect_garbage()
+        elif symbol == key.G:
+            self.generate()
         elif symbol == key.P:
             self.railway.output()
 
